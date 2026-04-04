@@ -1,31 +1,43 @@
-from sqlalchemy import Column, Integer, DECIMAL, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import DECIMAL, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Base
+from app.db.base_class import Base
+
 
 class DetailSale(Base):
-    __tablename__ = 'detail_sale'
+    __tablename__ = "sale_details"
 
-    detail_sale_id = Column(Integer, primary_key=True, autoincrement=True)
+    id_detail_sale: Mapped[int] = mapped_column(
+        "id_detail_sale", Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    sale_id = Column(
-        Integer,
-        ForeignKey('sale.sale_id', ondelete='CASCADE'),
+    id_sale: Mapped[int] = mapped_column(
+        "id_sale", ForeignKey("sales.id_sale", ondelete="CASCADE"),
         nullable=False
     )
 
-    product_id = Column(
-        Integer,
-        ForeignKey('product.product_id'),
+    id_product: Mapped[int] = mapped_column(
+        "id_product", ForeignKey("products.id_product"),
         nullable=False
     )
 
-    amount = Column(Integer, nullable=False)
+    quantity: Mapped[int] = mapped_column(
+        "quantity", Integer,
+        nullable=False
+    )
 
-    unit_price = Column(DECIMAL(10, 2), nullable=False)
+    unit_price: Mapped[float] = mapped_column(
+        "unit_price", DECIMAL(10, 2),
+        nullable=False
+    )
 
-    subtotal = Column(DECIMAL(10, 2), nullable=False)
+    subtotal: Mapped[float] = mapped_column(
+        "subtotal", DECIMAL(10, 2),
+        nullable=False
+    )
 
-    # Relaciones con Sale y Product
-    sale = relationship("Sale", back_populates="details")
-    product = relationship("Product", back_populates="detail_sales")
+    # Relationships con otras tablas
+    sale: Mapped["Sale"] = relationship("Sale", back_populates="details")
+    product: Mapped["Product"] = relationship("Product", back_populates="sale_details")

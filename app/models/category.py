@@ -1,21 +1,35 @@
-from sqlalchemy import Column, Integer, String, Enum
-from sqlalchemy.orm import relationship
 import enum
+from typing import List
 
-from database import Base
+from sqlalchemy import Enum, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class EnumState(enum.Enum):
-    ACTIVE = "ACTIVE"
-    INACTIVE = "INACTIVE"
+from app.db.base_class import Base
+
+
+class CategoryStatus(enum.Enum):
+    ACTIVE = "ACTIVO"
+    INACTIVE = "INACTIVO"
+
 
 class Category(Base):
-    __tablename__ = 'category'
+    __tablename__ = "categories"
 
-    category_id = Column(Integer, primary_key=True, autoincrement=True)
+    id_category: Mapped[int] = mapped_column(
+        "id_category", Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    name = Column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(
+        "name", String(100),
+        nullable=False
+    )
 
-    estate = Column(Enum(EnumState, name="category_state"), nullable=False)
+    status: Mapped[CategoryStatus] = mapped_column(
+        "status", Enum(CategoryStatus),
+        default=CategoryStatus.ACTIVE
+    )
 
-    # Relación con Product
-    products = relationship("Product", back_populates="category")
+    # Relationship con producto
+    products: Mapped[List["Product"]] = relationship("Product", back_populates="category")

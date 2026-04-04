@@ -1,29 +1,50 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+from datetime import datetime
+from typing import Optional, List
 
-from database import Base
+from sqlalchemy import DateTime, DECIMAL, ForeignKey, Integer, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.base_class import Base
+
 
 class Sale(Base):
-    __tablename__ = 'sale'
+    __tablename__ = "sales"
 
-    sale_id = Column(Integer, primary_key=True, autoincrement=True)
+    id_sale: Mapped[int] = mapped_column(
+        "id_sale", Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    seller_id = Column(Integer, ForeignKey('seller.seller_id'), nullable=False)
+    id_seller: Mapped[int] = mapped_column(
+        "id_seller", ForeignKey("users.id_user"),
+        nullable=False
+    )
 
-    folio = Column(String(50), unique=True, nullable=False)
+    folio: Mapped[str] = mapped_column(
+        "folio", String(50),
+        unique=True, nullable=False
+    )
 
-    sale_date = Column(TIMESTAMP, server_default=func.now())
+    sale_date: Mapped[datetime] = mapped_column(
+        "sale_date", DateTime,
+        server_default=func.now()
+    )
 
-    total = Column(DECIMAL(10, 2), nullable=False)
+    total: Mapped[float] = mapped_column(
+        "total", DECIMAL(10, 2),
+        nullable=False
+    )
 
-    payment_method = Column(String(50), nullable=True)
+    payment_method: Mapped[Optional[str]] = mapped_column(
+        "payment_method", String(50),
+        nullable=True
+    )
 
-    # Relación con User
-    seller = relationship("Seller", back_populates="sale")
-
-    details = relationship(
-    "DetailSale",
-    back_populates="sale",
-    cascade="all, delete-orphan"
+    # Relationships con otras tablas
+    seller: Mapped["User"] = relationship("User", back_populates="sales")
+    details: Mapped[List["DetailSale"]] = relationship(
+        "DetailSale",
+        back_populates="sale",
+        cascade="all, delete-orphan"
     )

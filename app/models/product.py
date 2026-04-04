@@ -1,42 +1,87 @@
-from sqlalchemy import (
-    Column, Integer, String, Text, Date, Boolean,
-    DECIMAL, TIMESTAMP, ForeignKey
-)
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+from datetime import date, datetime
+from typing import Optional, List
 
-from database import Base
+from sqlalchemy import Boolean, Date, DateTime, DECIMAL, ForeignKey, Integer, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.base_class import Base
+
 
 class Product(Base):
-    __tablename__ = 'product'
+    __tablename__ = "products"
 
-    product_id = Column(Integer, primary_key=True, autoincrement=True)
+    id_product: Mapped[int] = mapped_column(
+        "id_product", Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    category_id = Column(Integer, ForeignKey('category.category_id'), nullable=False)
-    category = relationship("Category", back_populates="products")
+    id_category: Mapped[int] = mapped_column(
+        "id_category", ForeignKey("categories.id_category"),
+        nullable=False
+    )
 
-    name = Column(String(150), nullable=False)
+    name: Mapped[str] = mapped_column(
+        "name", String(150),
+        nullable=False
+    )
 
-    description = Column(Text)
+    description: Mapped[Optional[str]] = mapped_column(
+        "description", Text,
+        nullable=True
+    )
 
-    sku = Column(String(100), unique=True, nullable=False)
+    sku: Mapped[str] = mapped_column(
+        "sku", String(100),
+        unique=True, nullable=False
+    )
 
-    price = Column(DECIMAL(10, 2), nullable=False)
+    sale_price: Mapped[float] = mapped_column(
+        "sale_price", DECIMAL(10, 2),
+        nullable=False
+    )
 
-    stock = Column(Integer, nullable=False)
+    stock: Mapped[int] = mapped_column(
+        "stock", Integer,
+        nullable=False, default=0
+    )
 
-    minimum_stock = Column(Integer, nullable=False)
+    minimum_stock: Mapped[int] = mapped_column(
+        "minimum_stock", Integer,
+        nullable=False, default=10
+    )
 
-    expiration_date = Column(Date, nullable=True)
+    expiration_date: Mapped[date] = mapped_column(
+        "expiration_date", Date,
+        nullable=False
+    )
 
-    batch = Column(String(100))
+    batch: Mapped[Optional[str]] = mapped_column(
+        "batch", String(100),
+        nullable=True
+    )
 
-    active = Column(Boolean, nullable=False, default=True)
+    active: Mapped[bool] = mapped_column(
+        "active", Boolean,
+        nullable=False, default=True
+    )
 
-    created_at = Column(TIMESTAMP, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        "created_at", DateTime,
+        server_default=func.now()
+    )
 
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
-    
-    deleted_at = Column(TIMESTAMP, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        "updated_at", DateTime,
+        server_default=func.now(), onupdate=func.now()
+    )
 
-    detail_sales = relationship("DetailSale", back_populates="product")
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        "deleted_at", DateTime,
+        nullable=True
+    )
+
+    # Relationships con otras tablas
+    category: Mapped["Category"] = relationship("Category", back_populates="products")
+    sale_details: Mapped[List["DetailSale"]] = relationship("DetailSale", back_populates="product")
+    inventory_movements: Mapped[List["InventoryMovement"]] = relationship("InventoryMovement", back_populates="product")
