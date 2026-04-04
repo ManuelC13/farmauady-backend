@@ -3,7 +3,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base
 
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from app.models.sale import Sale
+    from app.models.product import Product
+
+    
 class DetailSale(Base):
     __tablename__ = "sale_details"
 

@@ -6,6 +6,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.category import Category
+    from app.models.detail_sale import DetailSale
+    from app.models.inventory_movement import InventoryMovement
+
 
 class Product(Base):
     __tablename__ = "products"

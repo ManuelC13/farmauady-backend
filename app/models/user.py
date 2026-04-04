@@ -7,6 +7,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.role import Role
+    from app.models.sale import Sale
+    from app.models.inventory_movement import InventoryMovement
+    from app.models.generated_report import GeneratedReport
 
 class UserStatus(enum.Enum):
     ACTIVE = "ACTIVO"
