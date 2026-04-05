@@ -1,9 +1,9 @@
 import enum
 from datetime import date, datetime
 from typing import Optional
-
 from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import Enum as SqlEnum
 
 from app.db.base_class import Base
 
@@ -31,8 +31,14 @@ class GeneratedReport(Base):
         nullable=False
     )
 
+    #report_type: Mapped[ReportType] = mapped_column(
+    #    "report_type", Enum(ReportType),
+    #    nullable=False
+    #)
+
     report_type: Mapped[ReportType] = mapped_column(
-        "report_type", Enum(ReportType),
+        "report_type",
+        SqlEnum(ReportType, values_callable=lambda enum_cls: [e.value for e in enum_cls]),
         nullable=False
     )
 

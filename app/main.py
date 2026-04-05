@@ -16,9 +16,13 @@ from app.models.role import Role
 from app.models.sale import Sale
 from app.models.user import User
 
+from app.api.routes import user_routes
+
 app = FastAPI()
 
 #Base.metadata.create_all(bind=engine)
+
+app.include_router(user_routes.router)
 
 @app.get("/")
 def root():

@@ -1,9 +1,9 @@
 import enum
 from datetime import datetime
 from typing import Optional
-
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import Enum as SqlEnum
 
 from app.db.base_class import Base
 
@@ -41,8 +41,14 @@ class InventoryMovement(Base):
         nullable=False
     )
 
+    #movement_type: Mapped[MovementType] = mapped_column(
+    #    "movement_type", Enum(MovementType),
+    #    nullable=False
+    #)
+
     movement_type: Mapped[MovementType] = mapped_column(
-        "movement_type", Enum(MovementType),
+        "movement_type",
+        SqlEnum(MovementType, values_callable=lambda enum_cls: [e.value for e in enum_cls]),
         nullable=False
     )
 

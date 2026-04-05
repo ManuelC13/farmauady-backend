@@ -1,8 +1,8 @@
 import enum
 from typing import List
-
 from sqlalchemy import Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import Enum as SqlEnum
 
 from app.db.base_class import Base
 
@@ -31,8 +31,14 @@ class Category(Base):
         nullable=False
     )
 
+    #status: Mapped[CategoryStatus] = mapped_column(
+    #    "status", Enum(CategoryStatus),
+    #    default=CategoryStatus.ACTIVE
+    #)
+
     status: Mapped[CategoryStatus] = mapped_column(
-        "status", Enum(CategoryStatus),
+        "status",
+        SqlEnum(CategoryStatus, values_callable=lambda enum_cls: [e.value for e in enum_cls]),
         default=CategoryStatus.ACTIVE
     )
 
