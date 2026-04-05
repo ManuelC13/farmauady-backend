@@ -1,9 +1,9 @@
 import enum
 from datetime import datetime
 from typing import Optional, List
-
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import Enum as SqlEnum
 
 from app.db.base_class import Base
 
@@ -56,7 +56,8 @@ class User(Base):
     )
 
     status: Mapped[UserStatus] = mapped_column(
-        "status", Enum(UserStatus),
+        "status",
+        SqlEnum(UserStatus, values_callable=lambda x: [e.value for e in x]),
         default=UserStatus.ACTIVE
     )
 
