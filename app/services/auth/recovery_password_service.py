@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.utils.security import create_password_reset_token, verify_password_reset_token, hash_password
+from app.services.auth.email_service import send_reset_password_email
 
 def generate_password_reset_token(db: Session, email: str):
     user = db.query(User).filter(User.email == email).first()
@@ -11,7 +12,6 @@ def generate_password_reset_token(db: Session, email: str):
         
     reset_token = create_password_reset_token(email=user.email)
     
-    from app.services.email_service import send_reset_password_email
     send_reset_password_email(user.email, reset_token)
     
     return reset_token

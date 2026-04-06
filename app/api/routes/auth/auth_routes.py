@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlalchemy.orm import Session
-from app.schemas.auth_schema import loginRequest
-from app.services.auth.auth_service import login_user, get_new_access_token
+
 from app.db.database import get_db
+from app.schemas.auth_schema import loginRequest, LoginResponse, MessageResponse
+from app.services.auth.auth_service import login_user, get_new_access_token
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/login")
+@router.post("/login", response_model=LoginResponse)
 def login(data: loginRequest, response: Response, db: Session = Depends(get_db)):
     result = login_user(db, data.email, data.password)
 
@@ -19,7 +20,7 @@ def login(data: loginRequest, response: Response, db: Session = Depends(get_db))
         key="access_token",
         value=token,
         httponly=True,
-        secure=False, #cuando se despliegue se cambia a true porque depende de HTTPS
+        secure=False, # cuando se despliegue se cambia a true porque depende de HTTPS
         samesite="lax",
         max_age=3600
     )
@@ -42,7 +43,8 @@ def login(data: loginRequest, response: Response, db: Session = Depends(get_db))
         }
     }
 
-@router.post("/logout")
+
+@router.post("/logout", response_model=MessageResponse)
 def logout(response: Response):
     response.delete_cookie("access_token")
     response.delete_cookie("fresh_token")
@@ -50,7 +52,8 @@ def logout(response: Response):
         "message": "logout exitoso"
     }
 
-@router.post("/refresh")
+
+@router.post("/refresh", response_model=MessageResponse)
 def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
     fresh_token = request.cookies.get("fresh_token")
     if not fresh_token:
