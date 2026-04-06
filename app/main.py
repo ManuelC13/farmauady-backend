@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from app.db.database import engine
 from app.db.base_class import Base
 
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.auth import auth_routes, recovery_password_routes
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
@@ -18,8 +21,20 @@ from app.models.user import User
 
 app = FastAPI()
 
-#Base.metadata.create_all(bind=engine)
+#Esto debe cambiar cuando se haga el fronten y cuando se vaya a subir a producción
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], #Aqui se puede agregar la URL del frontend y el localhost:8000 para probar con el dccs de fastapi
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():
     return {"message": "Backend funcionando..."}
+
+app.include_router(auth_routes.router)
+app.include_router(recovery_password_routes.router)
