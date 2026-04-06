@@ -2,11 +2,11 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from datetime import datetime
-import hashlib
-
+import bcrypt
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    return hashed.decode() 
 
 
 def create_user(db: Session, user_data: UserCreate):
