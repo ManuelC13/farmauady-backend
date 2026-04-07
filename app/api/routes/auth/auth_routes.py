@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.auth_schema import loginRequest, LoginResponse, MessageResponse
-from app.services.auth.auth_service import login_user, get_new_access_token
+from app.services.auth.auth_service import login_user, get_new_access_token, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -72,4 +72,16 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
 
     return {
         "message": "Token actualizado exitosamente"
+    }
+
+
+@router.get("/verify")
+def verify_session(user: dict = Depends(get_current_user)):
+    """Verifica si la cookie HttpOnly sigue activa y retorna los datos del usuario."""
+    return {
+        "user": {
+            "id": user.id_user,
+            "name": f"{user.first_name} {user.last_name}",
+            "role": user.role.name
+        }
     }
