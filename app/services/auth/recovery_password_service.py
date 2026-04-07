@@ -8,7 +8,8 @@ def generate_password_reset_token(db: Session, email: str):
     user = db.query(User).filter(User.email == email).first()
     
     if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        # No se revela si el correo está registrado o no ( por seguridad)
+        return None
         
     reset_token = create_password_reset_token(email=user.email)
     
