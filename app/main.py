@@ -18,6 +18,7 @@ from app.models.product import Product
 from app.models.role import Role
 from app.models.sale import Sale
 from app.models.user import User
+from app.models.password_reset_tokens import PasswordResetToken
 
 from app.api.routes import user_routes
 

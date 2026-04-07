@@ -11,6 +11,7 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USERNAME = os.getenv("SMTP_USERNAME")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 FROM_EMAIL = os.getenv("FROM_EMAIL")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 def send_reset_password_email(to_email: str, token: str):
     if not SMTP_USERNAME or not SMTP_PASSWORD:
@@ -22,7 +23,7 @@ def send_reset_password_email(to_email: str, token: str):
     msg['To'] = to_email
     msg['Subject'] = "Recuperación de Contraseña - FarmaUADY"
     
-    reset_link = f"http://localhost:3000/reset-password?token={token}"
+    reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
     
     text_body = f"""Hola,
 

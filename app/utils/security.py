@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 import bcrypt
+import hashlib
 import os
 from dotenv import load_dotenv
 
@@ -67,3 +68,6 @@ def verify_password_reset_token(token: str):
         return payload.get("email")
     except JWTError:
         return None
+
+def hash_reset_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
