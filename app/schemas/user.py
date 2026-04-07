@@ -7,6 +7,13 @@ class UserStatus(str, Enum):
     ACTIVE = "ACTIVO"
     INACTIVE = "INACTIVO"
 
+class RoleResponse(BaseModel):
+    id_role: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
 
 class UserCreate(BaseModel):
     id_role: int
@@ -23,6 +30,8 @@ class UserResponse(BaseModel):
     last_name: str
     email: EmailStr
     status: UserStatus
+
+    role: RoleResponse
 
     class Config:
         from_attributes = True

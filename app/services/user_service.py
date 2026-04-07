@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from datetime import datetime
+from sqlalchemy.orm import joinedload
 import bcrypt
 
 def hash_password(password: str) -> str:
@@ -31,7 +32,7 @@ def create_user(db: Session, user_data: UserCreate):
 
 
 def get_users(db: Session):
-    return db.query(User).filter(User.deleted_at == None).all()
+    return db.query(User).options(joinedload(User.role)).filter(User.deleted_at == None).all()
 
 
 def get_user_by_id(db: Session, user_id: int):

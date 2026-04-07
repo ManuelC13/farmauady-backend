@@ -17,7 +17,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", response_model=List[UserResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])
+@router.get("/", response_model=List[UserResponse],dependencies=[Depends(RoleChecker(["Administrador"]))])
 def list_users(db: Session = Depends(get_db)):
     return user_service.get_users(db)
 
