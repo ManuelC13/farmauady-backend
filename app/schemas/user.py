@@ -21,6 +21,7 @@ class UserCreate(BaseModel):
     last_name: str
     email: EmailStr
     password: str
+    status: Optional[UserStatus] = UserStatus.ACTIVE
 
 
 class UserResponse(BaseModel):
@@ -40,5 +41,7 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    id_role: Optional[int] = None
     password: Optional[str] = None
     status: Optional[UserStatus] = None
