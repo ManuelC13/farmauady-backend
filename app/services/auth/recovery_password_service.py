@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 
-from app.models.user import User
+from app.models.user import User, UserStatus
 from app.models.password_reset_tokens import PasswordResetToken
 from app.utils.security import (
     create_password_reset_token,
@@ -19,6 +19,9 @@ def generate_password_reset_token(db: Session, email: str):
 
     if not user:
         raise HTTPException(status_code=404, detail="Si el correo existe se te enviara un enlace para restablecer tu contraseña")
+
+    if user.status != UserStatus.ACTIVE or user.deleted_at is not None:
+        return None # Retornar sin enviar correo si el usuario no esta activo o esta eliminado
 
     reset_token = create_password_reset_token(email=user.email)
 
@@ -45,6 +48,9 @@ def reset_password_with_token(db: Session, token: str, new_password: str):
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    if user.status != UserStatus.ACTIVE or user.deleted_at is not None:
+        raise HTTPException(status_code=403, detail="Esta cuenta está inactiva o ha sido eliminada")
 
     token_record = db.query(PasswordResetToken).filter(
         PasswordResetToken.token_hash == hash_reset_token(token),
