@@ -59,5 +59,6 @@ def update_user(db: Session, user, updates: UserUpdate):
 
 
 def delete_user(db: Session, user):
+    user.status = UserStatus.INACTIVE
     user.deleted_at = datetime.utcnow()
     db.commit()

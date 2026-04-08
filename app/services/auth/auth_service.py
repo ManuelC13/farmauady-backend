@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException, Depends
 from sqlalchemy.orm import Session
-from app.models.user import User
+from app.models.user import User, UserStatus
 from sqlalchemy.orm import joinedload
 from app.utils.security import verify_password, create_access_token, verify_token, create_fresh_token, verify_fresh_token
 from app.db.database import get_db
@@ -9,10 +9,16 @@ def login_user(db: Session, email: str, password: str):
     user = db.query(User).options(joinedload(User.role)).filter(User.email == email).first()
 
     if not user:
-        return None
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    
+    if user.deleted_at is not None:
+        raise HTTPException(status_code=401, detail="Esta cuenta ha sido eliminada")
+
+    if user.status == UserStatus.INACTIVE:
+        raise HTTPException(status_code=401, detail="Usuario inactivo. Contacte al administrador.")
 
     if not verify_password(password, user.password_hash):
-        return None
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     token = create_access_token({
         "sub": str(user.id_user),
@@ -43,6 +49,9 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
 
+    if user.deleted_at is not None or user.status == UserStatus.INACTIVE:
+        raise HTTPException(status_code=401, detail="Sesión inválida: Usuario inactivo o eliminado")
+
     return user
 
 class RoleChecker:
@@ -68,6 +77,9 @@ def get_new_access_token(db:Session, token:str):
     user = db.query(User).options(joinedload(User.role)).filter(User.id_user == user_id).first()
     if not user:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    
+    if user.deleted_at is not None or user.status == UserStatus.INACTIVE:
+        raise HTTPException(status_code=401, detail="No se puede renovar el token para un usuario inactivo o eliminado")
 
     new_access_token = create_access_token({
         "sub": str(user.id_user),
