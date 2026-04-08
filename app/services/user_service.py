@@ -21,7 +21,8 @@ def create_user(db: Session, user_data: UserCreate):
         first_name=user_data.first_name,
         last_name=user_data.last_name,
         email=user_data.email,
-        password_hash=hash_password(user_data.password)
+        password_hash=hash_password(user_data.password),
+        status=user_data.status
     )
 
     db.add(new_user)
