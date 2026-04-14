@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.utils.validate_password import validate_password
 from datetime import datetime
 from sqlalchemy.orm import joinedload
 import bcrypt
@@ -11,6 +12,10 @@ def hash_password(password: str) -> str:
 
 
 def create_user(db: Session, user_data: UserCreate):
+
+    # validar contraseña
+    validate_password(user_data.password)
+
     # verificar email duplicado
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
@@ -47,6 +52,7 @@ def update_user(db: Session, user, updates: UserUpdate):
     update_data = updates.dict(exclude_unset=True)
 
     if "password" in update_data:
+        validate_password(update_data["password"])
         update_data["password_hash"] = hash_password(update_data.pop("password"))
 
     for key, value in update_data.items():
@@ -58,7 +64,18 @@ def update_user(db: Session, user, updates: UserUpdate):
     return user
 
 
-def delete_user(db: Session, user):
-    user.status = UserStatus.INACTIVE
+#def delete_user(db: Session, user):
+#    user.deleted_at = datetime.utcnow()
+#    db.commit()
+
+def delete_user(db: Session, user, current_user):
+    # No puede eliminarse a sí mismo
+    if user.id_user == current_user.id_user:
+        raise ValueError("No puedes eliminar tu propia cuenta")
+
+    # Solo puede eliminar vendedores
+    if user.role.name != "Vendedor":
+        raise ValueError("Solo puedes eliminar usuarios con rol Vendedor")
+
     user.deleted_at = datetime.utcnow()
     db.commit()
