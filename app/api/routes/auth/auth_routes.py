@@ -4,11 +4,17 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.auth_schema import loginRequest, LoginResponse, MessageResponse
 from app.services.auth.auth_service import login_user, get_new_access_token, get_current_user
+from app.api.dependencies import check_login_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login", response_model=LoginResponse)
-def login(data: loginRequest, response: Response, db: Session = Depends(get_db)):
+def login(
+    data: loginRequest, 
+    response: Response, 
+    db: Session = Depends(get_db),
+    rate_limit = Depends(check_login_rate_limit)
+):
     result = login_user(db, data.email, data.password)
 
     if not result:
