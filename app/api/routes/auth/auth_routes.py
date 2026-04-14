@@ -45,7 +45,9 @@ def login(
         "user": {
             "id": user.id_user,
             "name": f"{user.first_name} {user.last_name}",
-            "role": user.role.name
+            "email": user.email,
+            "role": user.role.name,
+            "status": user.status
         }
     }
 
@@ -88,6 +90,8 @@ def verify_session(user: dict = Depends(get_current_user)):
         "user": {
             "id": user.id_user,
             "name": f"{user.first_name} {user.last_name}",
-            "role": user.role.name
+            "email": user.email,
+            "role": user.role.name,
+            "status": user.status
         }
     }
