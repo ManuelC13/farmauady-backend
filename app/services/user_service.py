@@ -48,7 +48,13 @@ def get_user_by_id(db: Session, user_id: int):
     ).first()
 
 
-def update_user(db: Session, user, updates: UserUpdate):
+def update_user(db: Session, user, updates: UserUpdate, current_user):
+    if user.id_user == current_user.id_user:
+        raise ValueError("No puedes editar tu propia cuenta desde este panel")
+    
+    if user.role.name != "Vendedor":
+        raise ValueError("No puedes editar a usuarios de tu mismo rol")
+
     update_data = updates.dict(exclude_unset=True)
 
     if "password" in update_data:
@@ -63,10 +69,6 @@ def update_user(db: Session, user, updates: UserUpdate):
 
     return user
 
-
-#def delete_user(db: Session, user):
-#    user.deleted_at = datetime.utcnow()
-#    db.commit()
 
 def delete_user(db: Session, user, current_user):
     # No puede eliminarse a sí mismo
