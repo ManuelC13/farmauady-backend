@@ -10,7 +10,9 @@ class loginRequest(BaseModel):
 class UserLoginInfo(BaseModel):
     id: int
     name: str
+    email: str
     role: str
+    status: str
 
 class LoginResponse(BaseModel):
     message: str
@@ -22,4 +24,10 @@ class forgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
-    confirm_password: str
+    confirm_password: str
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
