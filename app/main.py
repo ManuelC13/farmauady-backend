@@ -20,7 +20,8 @@ from app.models.sale import Sale
 from app.models.user import User
 from app.models.password_reset_tokens import PasswordResetToken
 
-from app.api.routes import user_routes
+from app.api.routes.user import user_routes
+from app.api.routes.product import product_routes
 
 app = FastAPI()
 
@@ -36,6 +37,7 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(user_routes.router)
+app.include_router(product_routes.router)
 
 @app.get("/")
 def root():
