@@ -43,24 +43,23 @@ def get_user(
 
 
 @router.put("/{user_id}", response_model=UserResponse, dependencies=[Depends(RoleChecker(["Administrador"]))])
-def update_user(user_id: int, updates: UserUpdate, db: Session = Depends(get_db)):
+def update_user(
+    user_id: int, 
+    updates: UserUpdate, 
+    db: Session = Depends(get_db), 
+    current_user = Depends(get_current_user)
+):
     user = user_service.get_user_by_id(db, user_id)
 
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    try:
+        return user_service.update_user(db, user, updates, current_user)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
 
     return user_service.update_user(db, user, updates)
-
-
-'''@router.delete("/{user_id}", dependencies=[Depends(RoleChecker(["Administrador"]))])
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    user = user_service.get_user_by_id(db, user_id)
-
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-    user_service.delete_user(db, user)
-    return {"message": "Usuario eliminado exitosamente"}'''
 
 
 @router.delete("/{user_id}", dependencies=[Depends(RoleChecker(["Administrador"]))])
