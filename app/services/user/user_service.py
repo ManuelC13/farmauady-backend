@@ -48,13 +48,7 @@ def get_user_by_id(db: Session, user_id: int):
     ).first()
 
 
-def update_user(db: Session, user, updates: UserUpdate, current_user):
-    if user.id_user == current_user.id_user:
-        raise ValueError("No puedes editar tu propia cuenta desde este panel")
-    
-    if user.role.name != "Vendedor":
-        raise ValueError("No puedes editar a usuarios de tu mismo rol")
-
+def update_user(db: Session, user, updates: UserUpdate):
     update_data = updates.dict(exclude_unset=True)
 
     if "password" in update_data:
