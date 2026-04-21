@@ -16,7 +16,7 @@ class ProductCreate(BaseModel):
     id_category: int
     name: str
     description: Optional[str] = None
-    sku: str
+    #sku: Optional[str] = None
     sale_price: Decimal
     stock: int = 0
     minimum_stock: int = 10

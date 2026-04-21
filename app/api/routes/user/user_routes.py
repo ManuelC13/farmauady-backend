@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.schemas.auth_schema import ChangePasswordRequest, MessageResponse
-from app.services import user_service
+from app.services.user import user_service
 from app.services.auth.auth_service import get_current_user, RoleChecker
 from app.utils.security import verify_password, hash_password
 from app.utils.validate_password import validate_password

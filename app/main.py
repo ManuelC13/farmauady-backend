@@ -22,6 +22,8 @@ from app.models.password_reset_tokens import PasswordResetToken
 
 from app.api.routes.user import user_routes
 from app.api.routes.product import product_routes
+from app.api.routes.product import inventory_routes
+from app.api.routes.product import category_routes
 
 app = FastAPI()
 
@@ -38,6 +40,8 @@ Base.metadata.create_all(bind=engine)
 
 app.include_router(user_routes.router)
 app.include_router(product_routes.router)
+app.include_router(inventory_routes.router)
+app.include_router(category_routes.router)
 
 @app.get("/")
 def root():
