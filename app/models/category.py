@@ -31,11 +31,6 @@ class Category(Base):
         nullable=False
     )
 
-    #status: Mapped[CategoryStatus] = mapped_column(
-    #    "status", Enum(CategoryStatus),
-    #    default=CategoryStatus.ACTIVE
-    #)
-
     status: Mapped[CategoryStatus] = mapped_column(
         "status",
         SqlEnum(CategoryStatus, values_callable=lambda enum_cls: [e.value for e in enum_cls]),

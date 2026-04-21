@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.schemas.auth_schema import ChangePasswordRequest, MessageResponse
-from app.services import user_service
+from app.services.user import user_service
 from app.services.auth.auth_service import get_current_user, RoleChecker
 from app.utils.security import verify_password, hash_password
 from app.utils.validate_password import validate_password
@@ -42,22 +42,32 @@ def get_user(
     return user
 
 
+@router.put("/me", response_model=UserResponse)
+def update_own_profile(
+    updates: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return user_service.update_user(db, current_user, updates)
+
+
 @router.put("/{user_id}", response_model=UserResponse, dependencies=[Depends(RoleChecker(["Administrador"]))])
 def update_user(
-    user_id: int, 
-    updates: UserUpdate, 
-    db: Session = Depends(get_db), 
+    user_id: int,
+    updates: UserUpdate,
+    db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     user = user_service.get_user_by_id(db, user_id)
 
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
-    try:
-        return user_service.update_user(db, user, updates, current_user)
-    except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
+
+    if user.id_user == current_user.id_user:
+        raise HTTPException(status_code=403, detail="No puedes editarte a ti mismo desde este panel")
+
+    if user.role.name != "Vendedor":
+        raise HTTPException(status_code=403, detail="No puedes editar usuarios con rol Administrador")
 
     return user_service.update_user(db, user, updates)
 
