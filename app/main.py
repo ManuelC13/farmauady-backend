@@ -19,6 +19,7 @@ from app.models.role import Role
 from app.models.sale import Sale
 from app.models.user import User
 from app.models.password_reset_tokens import PasswordResetToken
+from app.api.routes.product import product_routes
 
 from app.api.routes import user_routes
 
@@ -35,11 +36,11 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(user_routes.router)
-
 @app.get("/")
 def root():
     return {"message": "Backend funcionando..."}
 
 app.include_router(auth_routes.router)
 app.include_router(recovery_password_routes.router)
+app.include_router(user_routes.router)
+app.include_router(product_routes.router)
