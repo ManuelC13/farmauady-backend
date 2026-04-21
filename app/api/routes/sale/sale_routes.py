@@ -26,7 +26,7 @@ def get_recent_sales(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return sale_service.get_recent_sales(db, limit)
+    return sale_service.get_recent_sales(db, limit, current_user)
 
 
 # El vendedor ve solo sus propias ventas

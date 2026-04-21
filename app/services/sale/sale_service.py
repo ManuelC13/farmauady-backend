@@ -138,14 +138,20 @@ def create_sale(db: Session, seller: User, payload: CreateSaleRequest) -> SaleRe
         details = detail_responses
     )
 
-def get_recent_sales(db: Session, limit: int = 5) -> list[SaleResponse]:
-    sales = (
+def get_recent_sales(db: Session, limit: int = 5, current_user: User = None) -> list[SaleResponse]:
+    query = (
         db.query(Sale)
         .options(
             joinedload(Sale.seller),
             joinedload(Sale.details).joinedload(DetailSale.product)
         )
-        .order_by(Sale.sale_date.desc())
+    )
+
+    if current_user and current_user.role.name == "Vendedor":
+        query = query.filter(Sale.id_seller == current_user.id_user)
+
+    sales = (
+        query.order_by(Sale.sale_date.desc())
         .limit(limit)
         .all()
     )
