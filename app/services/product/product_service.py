@@ -53,26 +53,8 @@ def get_product_by_id(db: Session, product_id: int):
     )
 
 def generate_sku() -> str:
-    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
+    return f"{uuid.uuid4().hex[:8].upper()}"
 
-
-"""def create_product(db: Session, product_data: ProductCreate):
-    # Verificar SKU duplicado
-    existing = db.query(Product).filter(Product.sku == product_data.sku).first()
-    if existing:
-        raise ValueError("El SKU ya está registrado")
-
-    new_product = Product(
-        **product_data.dict(),
-        sku=generate_sku()
-    )
-
-    db.add(new_product)
-    db.commit()
-    db.refresh(new_product)
-
-    # Recargar con relaciones
-    return get_product_by_id(db, new_product.id_product)"""
 
 def create_product(db: Session, product_data: ProductCreate):
     new_product = Product(

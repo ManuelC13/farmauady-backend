@@ -32,11 +32,10 @@ class ProductCreate(BaseModel):
     id_category: int
     name: str
     description: Optional[str] = None
-    #sku: Optional[str] = None
     sale_price: Decimal
     stock: int = 0
     minimum_stock: int = 10
-    expiration_date: date
+    expiration_date: Optional[date] = None
     batch: Optional[str] = None
     active: bool = True
 
@@ -63,7 +62,7 @@ class ProductResponse(BaseModel):
     sale_price: Decimal
     stock: int
     minimum_stock: int
-    expiration_date: date
+    expiration_date: Optional[date]
     batch: Optional[str]
     active: bool
     created_at: datetime

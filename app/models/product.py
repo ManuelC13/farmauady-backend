@@ -59,7 +59,7 @@ class Product(Base):
 
     expiration_date: Mapped[date] = mapped_column(
         "expiration_date", Date,
-        nullable=False
+        nullable=True
     )
 
     batch: Mapped[Optional[str]] = mapped_column(
