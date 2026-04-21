@@ -7,6 +7,14 @@ class CategoryStatus(str, Enum):
     INACTIVE = "INACTIVO"
 
 
+class CategoryCreate(BaseModel):
+    name: str
+
+
+class CategoryUpdate(BaseModel):
+    name: str
+
+
 class CategoryResponse(BaseModel):
     id_category: int
     name: str
