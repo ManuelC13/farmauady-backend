@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from datetime import date
 
 from app.db.database import get_db
 from app.schemas.sale import (
@@ -49,6 +50,18 @@ def get_all_sales(
     current_user: User = Depends(get_current_user),
 ):
     return sale_service.get_all_sales(db)
+
+
+# Devuelve el historial de ventas aplicando los filtros que se seleccionen
+@router.get("/filtered", response_model=List[SaleResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])
+def get_filtered_sales(
+    start_date: date = Query(...),
+    end_date: date = Query(...),
+    seller_id: Optional[int] = Query(None),
+    category_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+):
+    return sale_service.get_filtered_sales(db, start_date, end_date, seller_id, category_id)
 
 
 #Endpoints para reservas temporales de productos
