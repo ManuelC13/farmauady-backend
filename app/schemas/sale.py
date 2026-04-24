@@ -33,3 +33,43 @@ class SaleResponse(BaseModel):
     class Config:
         from_attributes = True
 
+#Eschemas para la reserva de inventario
+class ReserveItemRequest(BaseModel):
+    id_product: int
+    quantity: int = Field(..., gt=0)
+
+
+class CreateReservationRequest(BaseModel):
+    cart_session_id: str = Field(..., description="UUID único del carrito del vendedor")
+    items: List[ReserveItemRequest] = Field(..., min_length=1)
+    ttl_minutes: int = Field(15, ge=1, le=60, description="Minutos que dura la reserva")
+
+
+class ReservationItemResponse(BaseModel):
+    id_reservation: int
+    id_product: int
+    product_name: str
+    quantity: int
+    expires_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ReservationResponse(BaseModel):
+    cart_session_id: str
+    items: List[ReservationItemResponse]
+    expires_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ConfirmSaleRequest(BaseModel):
+    cart_session_id: str
+    payment_method: Optional[str] = Field(None, max_length=50)
+
+
+class SaleStatsResponse(BaseModel):
+    total_sales: Decimal
+    items_sold: int
