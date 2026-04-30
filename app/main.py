@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
 from fastapi import FastAPI
 from app.db.database import engine
 from app.db.base_class import Base
@@ -51,11 +54,14 @@ scheduler.start()
 
 produccion_url = os.getenv("FRONTEND_URL")
 
+if not produccion_url:
+    raise ValueError("¡ERROR CRÍTICO! La variable FRONTEND_URL no está definida en las variables de entorno.")
+
 origenes_permitidos = [
-    produccion_url,              # Frontend producción
-    "http://localhost:5173",     # Frontend local
-    "http://localhost:8000",     # Swagger UI
-    "http://127.0.0.1:8000",     # Swagger UI
+    produccion_url,              
+    "http://localhost:5173",     
+    "http://localhost:8000",     
+    "http://127.0.0.1:8000",     
 ]
 
 #Esto debe cambiar cuando se haga el fronten y cuando se vaya a subir a producción
