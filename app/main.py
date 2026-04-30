@@ -49,7 +49,7 @@ def _run_reservation_cleanup():
 scheduler.add_job(_run_reservation_cleanup, 'interval', minutes=5)
 scheduler.start()
 
-produccion_url = os.getenv("PRODUCTION_URL")
+produccion_url = os.getenv("FRONTEND_URL")
 
 origenes_permitidos = [
     produccion_url,              # Frontend producción
