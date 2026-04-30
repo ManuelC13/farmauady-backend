@@ -49,10 +49,19 @@ def _run_reservation_cleanup():
 scheduler.add_job(_run_reservation_cleanup, 'interval', minutes=5)
 scheduler.start()
 
+produccion_url = os.getenv("PRODUCTION_URL")
+
+origenes_permitidos = [
+    produccion_url,              # Frontend producción
+    "http://localhost:5173",     # Frontend local
+    "http://localhost:8000",     # Swagger UI
+    "http://127.0.0.1:8000",     # Swagger UI
+]
+
 #Esto debe cambiar cuando se haga el fronten y cuando se vaya a subir a producción
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], #Aqui se puede agregar la URL del frontend y el localhost:8000 para probar con el dccs de fastapi
+    allow_origins=origenes_permitidos, #Aqui se puede agregar la URL del frontend y el localhost:8000 para probar con el dccs de fastapi
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
