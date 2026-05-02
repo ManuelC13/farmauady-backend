@@ -29,6 +29,11 @@ def list_users(
     return user_service.get_users(db, page, limit)
 
 
+@router.get("/sellers", response_model=List[UserResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])
+def list_sellers(db: Session = Depends(get_db)):
+    return user_service.get_sellers(db)
+
+
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(
     user_id: int,

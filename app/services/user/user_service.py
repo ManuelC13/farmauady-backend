@@ -1,10 +1,12 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
+from app.models.role import Role
 from app.schemas.user import UserCreate, UserUpdate
 from app.utils.validate_password import validate_password
 from datetime import datetime
 from sqlalchemy.orm import joinedload
 import bcrypt
+
 
 def hash_password(password: str) -> str:
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
@@ -12,7 +14,6 @@ def hash_password(password: str) -> str:
 
 
 def create_user(db: Session, user_data: UserCreate):
-
     # validar contraseña
     validate_password(user_data.password)
 
@@ -56,6 +57,16 @@ def get_user_by_id(db: Session, user_id: int):
         User.id_user == user_id,
         User.deleted_at == None
     ).first()
+
+
+def get_sellers(db: Session):
+    return (
+        db.query(User)
+        .options(joinedload(User.role))
+        .join(User.role)
+        .filter(User.deleted_at == None, Role.name == "Vendedor")
+        .all()
+    )
 
 
 def update_user(db: Session, user, updates: UserUpdate):

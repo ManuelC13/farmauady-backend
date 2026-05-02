@@ -16,7 +16,6 @@ from app.models.user import User
 router = APIRouter(prefix="/sales", tags=["sales"])
 
 
-
 @router.get("/stats/daily", response_model=SaleStatsResponse)
 def get_daily_stats(
     db: Session = Depends(get_db),
@@ -48,10 +47,13 @@ def get_my_sales(
 def get_all_sales(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    seller_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return sale_service.get_all_sales(db, page, limit)
+    return sale_service.get_all_sales(db, page, limit, start_date, end_date, seller_id)
 
 
 # Devuelve el historial de ventas aplicando los filtros que se seleccionen
