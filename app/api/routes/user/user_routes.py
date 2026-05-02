@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -20,9 +20,13 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", response_model=List[UserResponse],dependencies=[Depends(RoleChecker(["Administrador"]))])
-def list_users(db: Session = Depends(get_db)):
-    return user_service.get_users(db)
+@router.get("/", dependencies=[Depends(RoleChecker(["Administrador"]))])
+def list_users(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    return user_service.get_users(db, page, limit)
 
 
 @router.get("/{user_id}", response_model=UserResponse)

@@ -44,12 +44,14 @@ def get_my_sales(
 
 
 # El admin ve todas las ventas
-@router.get("/all", response_model=List[SaleResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])
+@router.get("/all", dependencies=[Depends(RoleChecker(["Administrador"]))])
 def get_all_sales(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return sale_service.get_all_sales(db)
+    return sale_service.get_all_sales(db, page, limit)
 
 
 # Devuelve el historial de ventas aplicando los filtros que se seleccionen

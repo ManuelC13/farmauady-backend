@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -10,9 +10,13 @@ from app.services.auth.auth_service import RoleChecker
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
-@router.get("/", response_model=List[CategoryResponse], dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
-def list_categories(db: Session = Depends(get_db)):
-    return category_service.get_categories(db)
+@router.get("/", dependencies=[Depends(RoleChecker(["Administrador"]))])
+def list_categories(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    return category_service.get_categories(db, page, limit)
 
 
 @router.post("/", response_model=CategoryResponse, dependencies=[Depends(RoleChecker(["Administrador"]))])

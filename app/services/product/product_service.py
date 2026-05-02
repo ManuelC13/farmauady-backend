@@ -35,13 +35,26 @@ def get_products_for_sale(db: Session, search: str = None):
         "products": products
     }
 
-def get_products(db: Session):
+def get_all_products_for_report(db: Session):
     return (
         db.query(Product)
         .options(joinedload(Product.category))
         .filter(Product.deleted_at == None)
         .all()
     )
+
+def get_products(db: Session, page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+    total = db.query(Product).filter(Product.deleted_at == None).count()
+    products = (
+        db.query(Product)
+        .options(joinedload(Product.category))
+        .filter(Product.deleted_at == None)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return {"data": products, "total": total, "page": page, "limit": limit}
 
 
 def get_product_by_id(db: Session, product_id: int):
@@ -89,11 +102,6 @@ def update_product(db: Session, product: Product, updates: ProductUpdate):
     db.refresh(product)
 
     return get_product_by_id(db, product.id_product)
-
-
-#def delete_product(db: Session, product: Product):
-#    product.deleted_at = datetime.utcnow()
-#    db.commit()
 
 def delete_product(db: Session, product: Product):
     # Verificar si tiene ventas o movimientos de inventario asociados

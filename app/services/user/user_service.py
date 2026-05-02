@@ -37,8 +37,18 @@ def create_user(db: Session, user_data: UserCreate):
     return new_user
 
 
-def get_users(db: Session):
-    return db.query(User).options(joinedload(User.role)).filter(User.deleted_at == None).all()
+def get_users(db: Session, page: int = 1, limit: int = 10):
+    offset = (page - 1) * limit
+    total = db.query(User).filter(User.deleted_at == None).count()
+    users = (
+        db.query(User)
+        .options(joinedload(User.role))
+        .filter(User.deleted_at == None)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return {"data": users, "total": total, "page": page, "limit": limit}
 
 
 def get_user_by_id(db: Session, user_id: int):

@@ -19,12 +19,16 @@ def get_sale_products(
 # Devuelve los productos que se mostrarán en el reporte 
 @router.get("/inventory-report", response_model=List[ProductResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])
 def get_inventory_report(db: Session = Depends(get_db)):
-    return product_service.get_products(db)
+    return product_service.get_all_products_for_report(db)
 
 
-@router.get("/", response_model=List[ProductResponse], dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
-def list_products(db: Session = Depends(get_db)):
-    return product_service.get_products(db)
+@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
+def list_products(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    return product_service.get_products(db, page, limit)
 
 
 @router.get("/{product_id}", response_model=ProductResponse, dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
