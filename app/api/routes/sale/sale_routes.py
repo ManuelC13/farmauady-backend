@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
@@ -12,6 +12,7 @@ from app.schemas.sale import (
 from app.services.sale import sale_service
 from app.services.auth.auth_service import get_current_user, RoleChecker
 from app.models.user import User
+from app.services.websockets.manager import manager
 
 router = APIRouter(prefix="/sales", tags=["sales"])
 
@@ -67,27 +68,37 @@ def get_filtered_sales(
 #Endpoints para reservas temporales de productos
 @router.post("/reserve", response_model=ReservationResponse, status_code=201)
 #Se reserva por 15 minutos
-def reserve_inventory(
+async def reserve_inventory(
     payload: CreateReservationRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return sale_service.reserve_inventory(db, current_user, payload)
+    result = sale_service.reserve_inventory(db, current_user, payload)
+    # Usamos un broadcast para notificar a todos los vendedores conectados que el inventario cambió
+    background_tasks.add_task(manager.broadcast, "INVENTORY_UPDATE")
+    return result
 
 
 @router.post("/confirm", response_model=SaleResponse, status_code=201)
-def confirm_sale(
+async def confirm_sale(
     payload: ConfirmSaleRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return sale_service.confirm_sale_from_reservation(db, current_user, payload)
+    result = sale_service.confirm_sale_from_reservation(db, current_user, payload)
+    background_tasks.add_task(manager.broadcast, "INVENTORY_UPDATE")
+    return result
 
 
 @router.delete("/reserve/{cart_session_id}", status_code=200)
-def release_reservation(
+async def release_reservation(
     cart_session_id: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return sale_service.release_reservation(db, cart_session_id, current_user)
+    result = sale_service.release_reservation(db, cart_session_id, current_user)
+    background_tasks.add_task(manager.broadcast, "INVENTORY_UPDATE")
+    return result

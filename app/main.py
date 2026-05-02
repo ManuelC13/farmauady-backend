@@ -30,6 +30,7 @@ from app.api.routes.user import user_routes
 from app.api.routes.product import product_routes
 from app.api.routes.product import inventory_routes
 from app.api.routes.product import category_routes
+from app.api.routes.websockets import inventory_ws
 
 app = FastAPI()
 
@@ -64,10 +65,9 @@ origenes_permitidos = [
     "http://127.0.0.1:8000",     
 ]
 
-#Esto debe cambiar cuando se haga el fronten y cuando se vaya a subir a producción
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origenes_permitidos, #Aqui se puede agregar la URL del frontend y el localhost:8000 para probar con el dccs de fastapi
+    allow_origins=origenes_permitidos,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -86,3 +86,4 @@ app.include_router(product_routes.router)
 app.include_router(inventory_routes.router)
 app.include_router(category_routes.router)
 app.include_router(sale_routes.router)
+app.include_router(inventory_ws.router)

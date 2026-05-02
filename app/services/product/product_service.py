@@ -7,16 +7,36 @@ from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 from app.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
+from app.models.inventory_reservation import InventoryReservation
+from sqlalchemy import func
 
-def get_products_for_sale(db: Session, search: str = None):
+def get_products_for_sale(db: Session, search: str = None, cart_session_id: str = None):
+    #Subconsulta para obtener la cantidad reservada por otros carritos activos
+    reserved_subquery = (
+        db.query(
+            InventoryReservation.id_product,
+            func.sum(InventoryReservation.quantity).label("reserved_qty")
+        )
+        .filter(InventoryReservation.expires_at > datetime.utcnow())
+    )
+    
+    if cart_session_id:
+        reserved_subquery = reserved_subquery.filter(
+            InventoryReservation.cart_session_id != cart_session_id
+        )
+        
+    reserved_subquery = reserved_subquery.group_by(InventoryReservation.id_product).subquery()
+
     query = db.query(
         Product.id_product,
         Product.name,
         Category.name.label("category_name"),
         Product.sale_price,
         Product.stock,
-        Product.minimum_stock
+        Product.minimum_stock,
+        func.coalesce(reserved_subquery.c.reserved_qty, 0).label("reserved")
     ).join(Category, Product.id_category == Category.id_category)\
+    .outerjoin(reserved_subquery, Product.id_product == reserved_subquery.c.id_product)\
     .filter(Product.active == True)
 
     if search:
@@ -28,11 +48,23 @@ def get_products_for_sale(db: Session, search: str = None):
             )
         )
     
-    products = query.all()
+    products_data = query.all()
+
+    result = []
+    for p in products_data:
+        available_stock = p.stock - p.reserved
+        result.append({
+            "id_product": p.id_product,
+            "name": p.name,
+            "category_name": p.category_name,
+            "sale_price": p.sale_price,
+            "stock": available_stock,
+            "minimum_stock": p.minimum_stock
+        })
 
     return {
-        "total": len(products),
-        "products": products
+        "total": len(result),
+        "products": result
     }
 
 def get_products(db: Session):
