@@ -12,9 +12,10 @@ router = APIRouter(prefix="/products", tags=["products"])
 def get_sale_products(
     search: Optional[str] = Query(None, description="Buscar por nombre o categoría"),
     cart_session_id: Optional[str] = Query(None, description="ID de la sesión del carrito"),
+    only_available: bool = Query(False, description="Filtrar solo productos con stock disponible"),
     db: Session = Depends(get_db)
 ):
-    return product_service.get_products_for_sale(db, search, cart_session_id)
+    return product_service.get_products_for_sale(db, search, cart_session_id, only_available)
     
 
 # Devuelve los productos que se mostrarán en el reporte 

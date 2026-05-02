@@ -20,6 +20,9 @@ def get_recent_sales(db: Session, limit: int = 5, current_user: User = None) -> 
     if current_user and current_user.role.name == "Vendedor":
         query = query.filter(Sale.id_seller == current_user.id_user)
 
+    today = date.today()
+    query = query.filter(func.date(Sale.sale_date) == today)
+
     sales = (
         query.order_by(Sale.sale_date.desc())
         .limit(limit)

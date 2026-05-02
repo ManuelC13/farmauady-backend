@@ -10,7 +10,7 @@ from app.schemas.product import ProductCreate, ProductUpdate
 from app.models.inventory_reservation import InventoryReservation
 from sqlalchemy import func
 
-def get_products_for_sale(db: Session, search: str = None, cart_session_id: str = None):
+def get_products_for_sale(db: Session, search: str = None, cart_session_id: str = None, only_available: bool = False):
     #Subconsulta para obtener la cantidad reservada por otros carritos activos
     reserved_subquery = (
         db.query(
@@ -53,6 +53,11 @@ def get_products_for_sale(db: Session, search: str = None, cart_session_id: str 
     result = []
     for p in products_data:
         available_stock = p.stock - p.reserved
+        
+        #Filtro de productos sin stock disponible
+        if only_available and available_stock <= 0:
+            continue
+            
         result.append({
             "id_product": p.id_product,
             "name": p.name,
