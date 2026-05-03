@@ -54,29 +54,37 @@ def get_recent_sales(db: Session, limit: int = 5, current_user: User = None) -> 
         
     return responses
 
-def get_all_sales(db: Session) -> list[SaleResponse]:
-    sales = (
+def get_all_sales(db: Session, page: int = 1, limit: int = 10, start_date=None, end_date=None, seller_id: int = None):
+    query = (
         db.query(Sale)
         .options(
             joinedload(Sale.seller),
             joinedload(Sale.details).joinedload(DetailSale.product)
         )
-        .order_by(Sale.sale_date.desc())
-        .all()
     )
+
+    if start_date:
+        query = query.filter(func.date(Sale.sale_date) >= start_date)
+    if end_date:
+        query = query.filter(func.date(Sale.sale_date) <= end_date)
+    if seller_id:
+        query = query.filter(Sale.id_seller == seller_id)
+
+    total = query.count()
+    sales = query.order_by(Sale.sale_date.desc()).offset((page - 1) * limit).limit(limit).all()
 
     responses = []
     for sale in sales:
-        detail_responses = []
-        for detail in sale.details:
-            detail_responses.append(SaleDetailResponse(
+        detail_responses = [
+            SaleDetailResponse(
                 id_product=detail.id_product,
                 product_name=detail.product.name,
                 quantity=detail.quantity,
                 unit_price=detail.unit_price,
                 subtotal=detail.subtotal
-            ))
-            
+            )
+            for detail in sale.details
+        ]
         responses.append(SaleResponse(
             id_sale=sale.id_sale,
             folio=sale.folio,
@@ -86,8 +94,9 @@ def get_all_sales(db: Session) -> list[SaleResponse]:
             seller_name=f"{sale.seller.first_name} {sale.seller.last_name}",
             details=detail_responses
         ))
-        
-    return responses
+
+    return {"data": responses, "total": total, "page": page, "limit": limit}
+
 
 def get_sales_by_seller(db: Session, seller_id: int) -> list[SaleResponse]:
     sales = (
@@ -126,7 +135,7 @@ def get_sales_by_seller(db: Session, seller_id: int) -> list[SaleResponse]:
     return responses
 
 
-    # Obtención de las ventas filtradas. Primero se arma la base de las ventas en el rango 
+# Obtención de las ventas filtradas. Primero se arma la base de las ventas en el rango 
 # de fechas y posteriormente se aplican los demás filtros opcionales
 def get_filtered_sales(
     db: Session,

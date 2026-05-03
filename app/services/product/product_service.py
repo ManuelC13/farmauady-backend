@@ -72,13 +72,32 @@ def get_products_for_sale(db: Session, search: str = None, cart_session_id: str 
         "products": result
     }
 
-def get_products(db: Session):
-    return (
-        db.query(Product)
-        .options(joinedload(Product.category))
-        .filter(Product.deleted_at == None)
-        .all()
-    )
+
+def get_all_products_for_report(db: Session, category_id: int = None, active: bool = None):
+    query = db.query(Product).options(joinedload(Product.category)).filter(Product.deleted_at == None)
+
+    if category_id is not None:
+        query = query.filter(Product.id_category == category_id)
+
+    if active is not None:
+        query = query.filter(Product.active == active)
+
+    return query.all()
+
+
+def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int = None, active: bool = None):
+    query = db.query(Product).options(joinedload(Product.category)).filter(Product.deleted_at == None)
+
+    if category_id is not None:
+        query = query.filter(Product.id_category == category_id)
+
+    if active is not None:
+        query = query.filter(Product.active == active)
+
+    total = query.count()
+    products = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {"data": products, "total": total, "page": page, "limit": limit}
 
 
 def get_product_by_id(db: Session, product_id: int):
@@ -88,6 +107,7 @@ def get_product_by_id(db: Session, product_id: int):
         .filter(Product.id_product == product_id, Product.deleted_at == None)
         .first()
     )
+
 
 def generate_sku() -> str:
     return f"{uuid.uuid4().hex[:8].upper()}"
@@ -126,11 +146,6 @@ def update_product(db: Session, product: Product, updates: ProductUpdate):
     db.refresh(product)
 
     return get_product_by_id(db, product.id_product)
-
-
-#def delete_product(db: Session, product: Product):
-#    product.deleted_at = datetime.utcnow()
-#    db.commit()
 
 def delete_product(db: Session, product: Product):
     # Verificar si tiene ventas o movimientos de inventario asociados
