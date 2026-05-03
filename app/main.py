@@ -27,6 +27,7 @@ from app.api.routes.product import product_routes
 from app.api.routes.sale import sale_routes
 
 from app.api.routes.user import user_routes
+from app.api.routes.user import admin_dashboard_routes
 from app.api.routes.product import product_routes
 from app.api.routes.product import inventory_routes
 from app.api.routes.product import category_routes
@@ -82,6 +83,7 @@ def root():
 app.include_router(auth_routes.router)
 app.include_router(recovery_password_routes.router)
 app.include_router(user_routes.router)
+app.include_router(admin_dashboard_routes.router)
 app.include_router(product_routes.router)
 app.include_router(inventory_routes.router)
 app.include_router(category_routes.router)
