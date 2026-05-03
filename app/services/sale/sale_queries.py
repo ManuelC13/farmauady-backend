@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.product import Product
 from app.schemas.sale import SaleResponse, SaleDetailResponse
 
-def get_recent_sales(db: Session, limit: int = 5, current_user: User = None) -> list[SaleResponse]:
+def get_recent_sales(db: Session, limit: int = 10, current_user: User = None) -> dict:
     query = (
         db.query(Sale)
         .options(
@@ -19,9 +19,6 @@ def get_recent_sales(db: Session, limit: int = 5, current_user: User = None) -> 
 
     if current_user and current_user.role.name == "Vendedor":
         query = query.filter(Sale.id_seller == current_user.id_user)
-
-    today = date.today()
-    query = query.filter(func.date(Sale.sale_date) == today)
 
     sales = (
         query.order_by(Sale.sale_date.desc())
@@ -52,7 +49,7 @@ def get_recent_sales(db: Session, limit: int = 5, current_user: User = None) -> 
         ))
         
         
-    return responses
+    return {"data": responses}
 
 def get_all_sales(db: Session, page: int = 1, limit: int = 10, start_date=None, end_date=None, seller_id: int = None):
     query = (
@@ -98,7 +95,7 @@ def get_all_sales(db: Session, page: int = 1, limit: int = 10, start_date=None, 
     return {"data": responses, "total": total, "page": page, "limit": limit}
 
 
-def get_sales_by_seller(db: Session, seller_id: int) -> list[SaleResponse]:
+def get_sales_by_seller(db: Session, seller_id: int) -> dict:
     sales = (
         db.query(Sale)
         .options(
@@ -132,7 +129,7 @@ def get_sales_by_seller(db: Session, seller_id: int) -> list[SaleResponse]:
             details=detail_responses
         ))
 
-    return responses
+    return {"data": responses}
 
 
 # Obtención de las ventas filtradas. Primero se arma la base de las ventas en el rango 
@@ -143,7 +140,7 @@ def get_filtered_sales(
     end_date: date,
     seller_id: Optional[int] = None,
     category_id: Optional[int] = None,
-) -> list[SaleResponse]:
+) -> dict:
     query = (
         db.query(Sale)
         .options(
@@ -188,4 +185,4 @@ def get_filtered_sales(
             details=detail_responses
         ))
 
-    return responses
+    return {"data": responses}

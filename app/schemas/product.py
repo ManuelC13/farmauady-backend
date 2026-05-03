@@ -26,7 +26,7 @@ class CategoryResponse(BaseModel):
 
 class ProductSaleListResponse(BaseModel):
     total: int
-    products: List[ProductForSale]
+    data: List[ProductForSale]
 
 class ProductCreate(BaseModel):
     id_category: int

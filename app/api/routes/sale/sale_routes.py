@@ -5,7 +5,7 @@ from datetime import date
 
 from app.db.database import get_db
 from app.schemas.sale import (
-    SaleResponse,
+    SaleResponse, SaleListResponse,
     CreateReservationRequest, ReservationResponse, ConfirmSaleRequest,
     SaleStatsResponse
 )
@@ -25,7 +25,7 @@ def get_daily_stats(
     return sale_service.get_daily_stats(db, current_user)
 
 
-@router.get("/recent", response_model=List[SaleResponse])
+@router.get("/recent", response_model=SaleListResponse)
 def get_recent_sales(
     limit: int = Query(5, description="Número de ventas recientes a obtener"),
     db: Session = Depends(get_db),
@@ -35,7 +35,7 @@ def get_recent_sales(
 
 
 # El vendedor ve solo sus propias ventas
-@router.get("/my-sales", response_model=List[SaleResponse], dependencies=[Depends(RoleChecker(["Vendedor"]))])
+@router.get("/my-sales", response_model=SaleListResponse, dependencies=[Depends(RoleChecker(["Vendedor"]))])
 def get_my_sales(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -58,7 +58,7 @@ def get_all_sales(
 
 
 # Devuelve el historial de ventas aplicando los filtros que se seleccionen
-@router.get("/filtered", response_model=List[SaleResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])
+@router.get("/filtered", response_model=SaleListResponse, dependencies=[Depends(RoleChecker(["Administrador"]))])
 def get_filtered_sales(
     start_date: date = Query(...),
     end_date: date = Query(...),

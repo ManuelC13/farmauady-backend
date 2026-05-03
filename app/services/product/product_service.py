@@ -69,7 +69,7 @@ def get_products_for_sale(db: Session, search: str = None, cart_session_id: str 
 
     return {
         "total": len(result),
-        "products": result
+        "data": result
     }
 
 
@@ -85,14 +85,34 @@ def get_all_products_for_report(db: Session, category_id: int = None, active: bo
     return query.all()
 
 
-def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int = None, active: bool = None):
+def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int = None, active: bool = None, search: str = None, category_name: str = None, status: str = None):
     query = db.query(Product).options(joinedload(Product.category)).filter(Product.deleted_at == None)
 
     if category_id is not None:
         query = query.filter(Product.id_category == category_id)
+    
+    if category_name:
+        query = query.join(Product.category).filter(Category.name == category_name)
 
     if active is not None:
         query = query.filter(Product.active == active)
+
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            or_(
+                Product.name.ilike(search_filter),
+                Product.sku.ilike(search_filter),
+                Category.name.ilike(search_filter)
+            )
+        )
+
+    if status == "Agotado":
+        query = query.filter(Product.stock == 0)
+    elif status == "Stock crítico":
+        query = query.filter(Product.stock > 0, Product.stock <= Product.minimum_stock)
+    elif status == "Disponible":
+        query = query.filter(Product.stock > Product.minimum_stock)
 
     total = query.count()
     products = query.offset((page - 1) * limit).limit(limit).all()

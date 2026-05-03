@@ -33,6 +33,10 @@ class SaleResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class SaleListResponse(BaseModel):
+    total: Optional[int] = None
+    data: List[SaleResponse]
+
 #Eschemas para la reserva de inventario
 class ReserveItemRequest(BaseModel):
     id_product: int

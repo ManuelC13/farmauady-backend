@@ -34,9 +34,12 @@ def list_products(
     limit: int = Query(10, ge=1, le=100),
     category_id: Optional[int] = Query(None),
     active: Optional[bool] = Query(None),
+    search: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
-    return product_service.get_products(db, page, limit, category_id, active)
+    return product_service.get_products(db, page, limit, category_id, active, search, category, status)
 
 
 @router.get("/{product_id}", response_model=ProductResponse, dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
