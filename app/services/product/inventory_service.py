@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.inventory_movement import InventoryMovement, MovementType
 from app.models.product import Product
 from app.schemas.inventory import ManualExitCreate
@@ -45,3 +45,30 @@ def create_manual_exit(db: Session, data: ManualExitCreate, current_user):
     db.refresh(movement)
 
     return movement
+
+
+def get_manual_exits_report(db: Session):
+    # Excluir ventas (VENTA)
+    movements = (
+        db.query(InventoryMovement)
+        .options(
+            joinedload(InventoryMovement.product),
+            joinedload(InventoryMovement.user)
+        )
+        .filter(InventoryMovement.movement_type != MovementType.SALE.value)
+        .order_by(InventoryMovement.movement_date.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id_movement":   m.id_movement,
+            "product_name":  m.product.name,
+            "quantity":      m.quantity,
+            "movement_type": m.movement_type,
+            "reason":        m.reason,
+            "user_name":     f"{m.user.first_name} {m.user.last_name}",
+            "movement_date": m.movement_date,
+        }
+        for m in movements
+    ]
