@@ -32,6 +32,7 @@ from app.api.routes.product import product_routes
 from app.api.routes.product import inventory_routes
 from app.api.routes.product import category_routes
 from app.api.routes.websockets import inventory_ws
+from app.api.routes.websockets import presence_ws
 
 app = FastAPI()
 
@@ -89,3 +90,4 @@ app.include_router(inventory_routes.router)
 app.include_router(category_routes.router)
 app.include_router(sale_routes.router)
 app.include_router(inventory_ws.router)
+app.include_router(presence_ws.router)

@@ -1,4 +1,4 @@
-from fastapi import Request, HTTPException, Depends
+from fastapi import Request, HTTPException, Depends, WebSocket
 from sqlalchemy.orm import Session
 from app.models.user import User, UserStatus
 from sqlalchemy.orm import joinedload
@@ -88,3 +88,34 @@ def get_new_access_token(db:Session, token:str):
     })
 
     return new_access_token
+
+#Función para obtener al usuario desde un WebSocket usando el token de acceso en las cookies HttpOnly
+def get_user_from_websocket(websocket: WebSocket, db: Session):
+    """
+    Valida la sesión de un usuario desde un WebSocket.
+    Lee la cookie HttpOnly de access_token y verifica que es válido.
+    Retorna el usuario o None si la sesión es inválida.
+    """
+    try:
+        token = websocket.cookies.get("access_token")
+        
+        if not token:
+            return None
+        
+        payload = verify_token(token)
+        
+        if not payload:
+            return None
+        
+        user_id = payload.get("sub")
+        user = db.query(User).options(joinedload(User.role)).filter(User.id_user == user_id).first()
+        
+        if not user:
+            return None
+        
+        if user.deleted_at is not None or user.status == UserStatus.INACTIVE:
+            return None
+        
+        return user
+    except Exception:
+        return None
