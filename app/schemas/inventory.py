@@ -33,3 +33,16 @@ class InventoryMovementResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InventoryManualExitReportResponse(BaseModel):
+    id_movement: int
+    product_name: str
+    quantity: int
+    movement_type: str
+    reason: Optional[str]
+    user_name: str
+    movement_date: datetime
+
+    class Config:
+        from_attributes = True
