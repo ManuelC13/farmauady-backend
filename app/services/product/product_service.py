@@ -85,7 +85,16 @@ def get_all_products_for_report(db: Session, category_id: int = None, active: bo
     return query.all()
 
 
-def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int = None, active: bool = None, search: str = None, category_name: str = None, status: str = None):
+def get_all_active_products(db: Session):
+    return (
+        db.query(Product)
+        .options(joinedload(Product.category))
+        .filter(Product.deleted_at == None, Product.active == True, Product.stock > 0)
+        .all()
+    )
+
+
+'''def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int = None, active: bool = None, search: str = None, category_name: str = None, status: str = None):
     query = db.query(Product).options(joinedload(Product.category)).filter(Product.deleted_at == None)
 
     if category_id is not None:
@@ -93,6 +102,45 @@ def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int =
     
     if category_name:
         query = query.join(Product.category).filter(Category.name == category_name)
+
+    if active is not None:
+        query = query.filter(Product.active == active)
+
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            or_(
+                Product.name.ilike(search_filter),
+                Product.sku.ilike(search_filter),
+                Category.name.ilike(search_filter)
+            )
+        )
+
+    if status == "Agotado":
+        query = query.filter(Product.stock == 0)
+    elif status == "Stock crítico":
+        query = query.filter(Product.stock > 0, Product.stock <= Product.minimum_stock)
+    elif status == "Disponible":
+        query = query.filter(Product.stock > Product.minimum_stock)
+
+    total = query.count()
+    products = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {"data": products, "total": total, "page": page, "limit": limit}'''
+
+
+def get_products(db: Session, page: int = 1, limit: int = 10, category_id: int = None, active: bool = None, search: str = None, category_name: str = None, status: str = None):
+    query = db.query(Product).options(joinedload(Product.category)).filter(Product.deleted_at == None)
+
+    if category_id is not None:
+        query = query.filter(Product.id_category == category_id)
+
+    needs_category_join = category_name or (search and True)
+    if needs_category_join:
+        query = query.join(Product.category)
+
+    if category_name:
+        query = query.filter(Category.name == category_name)
 
     if active is not None:
         query = query.filter(Product.active == active)

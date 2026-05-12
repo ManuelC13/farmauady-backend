@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.models.category import Category, CategoryStatus
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
-def get_categories(db: Session, page: int = 1, limit: int = 10):
+'''def get_categories(db: Session, page: int = 1, limit: int = 10):
     offset = (page - 1) * limit
     total = db.query(Category).filter(Category.status == CategoryStatus.ACTIVE).count()
     categories = (
@@ -13,6 +14,17 @@ def get_categories(db: Session, page: int = 1, limit: int = 10):
         .limit(limit)
         .all()
     )
+    return {"data": categories, "total": total, "page": page, "limit": limit}'''
+
+
+def get_categories(db: Session, page: int = 1, limit: int = 10, search: str = None):
+    query = db.query(Category).filter(Category.status == CategoryStatus.ACTIVE)
+
+    if search:
+        query = query.filter(Category.name.ilike(f"%{search}%"))
+
+    total = query.count()
+    categories = query.offset((page - 1) * limit).limit(limit).all()
     return {"data": categories, "total": total, "page": page, "limit": limit}
 
 

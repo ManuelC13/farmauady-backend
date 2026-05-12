@@ -20,13 +20,23 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", dependencies=[Depends(RoleChecker(["Administrador"]))])
+'''@router.get("/", dependencies=[Depends(RoleChecker(["Administrador"]))])
 def list_users(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    return user_service.get_users(db, page, limit)
+    return user_service.get_users(db, page, limit)'''
+
+
+@router.get("/", dependencies=[Depends(RoleChecker(["Administrador"]))])
+def list_users(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    search: str | None = Query(None),
+    db: Session = Depends(get_db)
+):
+    return user_service.get_users(db, page, limit, search)
 
 
 @router.get("/sellers", response_model=List[UserResponse], dependencies=[Depends(RoleChecker(["Administrador"]))])

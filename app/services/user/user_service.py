@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.models.user import User
 from app.models.role import Role
 from app.schemas.user import UserCreate, UserUpdate
@@ -38,7 +39,7 @@ def create_user(db: Session, user_data: UserCreate):
     return new_user
 
 
-def get_users(db: Session, page: int = 1, limit: int = 10):
+'''def get_users(db: Session, page: int = 1, limit: int = 10):
     offset = (page - 1) * limit
     total = db.query(User).filter(User.deleted_at == None).count()
     users = (
@@ -49,6 +50,23 @@ def get_users(db: Session, page: int = 1, limit: int = 10):
         .limit(limit)
         .all()
     )
+    return {"data": users, "total": total, "page": page, "limit": limit}'''
+
+
+def get_users(db: Session, page: int = 1, limit: int = 10, search: str = None):
+    query = db.query(User).options(joinedload(User.role)).filter(User.deleted_at == None)
+
+    if search:
+        query = query.filter(
+            or_(
+                User.first_name.ilike(f"%{search}%"),
+                User.last_name.ilike(f"%{search}%"),
+                User.email.ilike(f"%{search}%"),
+            )
+        )
+
+    total = query.count()
+    users = query.offset((page - 1) * limit).limit(limit).all()
     return {"data": users, "total": total, "page": page, "limit": limit}
 
 

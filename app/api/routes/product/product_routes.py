@@ -28,7 +28,12 @@ def get_inventory_report(
     return product_service.get_all_products_for_report(db, category_id, active)
 
 
-@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
+@router.get("/active", response_model=List[ProductResponse], dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
+def get_active_products(db: Session = Depends(get_db)):
+    return product_service.get_all_active_products(db)
+
+
+'''@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
 def list_products(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
@@ -37,6 +42,20 @@ def list_products(
     search: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    return product_service.get_products(db, page, limit, category_id, active, search, category, status)'''
+
+
+@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
+def list_products(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    category_id: int | None = Query(None),
+    active: bool | None = Query(None),
+    search: str | None = Query(None),
+    category: str | None = Query(None),
+    status: str | None = Query(None),
     db: Session = Depends(get_db)
 ):
     return product_service.get_products(db, page, limit, category_id, active, search, category, status)

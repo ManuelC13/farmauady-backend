@@ -10,13 +10,23 @@ from app.services.auth.auth_service import RoleChecker
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
-@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
+'''@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
 def list_categories(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    return category_service.get_categories(db, page, limit)
+    return category_service.get_categories(db, page, limit)'''
+
+
+@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "vendedor"]))])
+def list_categories(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    search: str | None = Query(None),
+    db: Session = Depends(get_db)
+):
+    return category_service.get_categories(db, page, limit, search)
 
 
 @router.post("/", response_model=CategoryResponse, dependencies=[Depends(RoleChecker(["Administrador"]))])
