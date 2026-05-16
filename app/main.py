@@ -64,7 +64,8 @@ origenes_permitidos = [
     produccion_url,              
     "http://localhost:5173",     
     "http://localhost:8000",     
-    "http://127.0.0.1:8000",     
+    "http://127.0.0.1:8000",
+    "https://farmauady.vercel.app",     
 ]
 
 app.add_middleware(
