@@ -33,20 +33,6 @@ def get_active_products(db: Session = Depends(get_db)):
     return product_service.get_all_active_products(db)
 
 
-'''@router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
-def list_products(
-    page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1, le=100),
-    category_id: Optional[int] = Query(None),
-    active: Optional[bool] = Query(None),
-    search: Optional[str] = Query(None),
-    category: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    db: Session = Depends(get_db)
-):
-    return product_service.get_products(db, page, limit, category_id, active, search, category, status)'''
-
-
 @router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
 def list_products(
     page: int = Query(1, ge=1),

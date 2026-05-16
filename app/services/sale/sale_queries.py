@@ -51,49 +51,6 @@ def get_recent_sales(db: Session, limit: int = 10, current_user: User = None) ->
         
     return {"data": responses}
 
-'''def get_all_sales(db: Session, page: int = 1, limit: int = 10, start_date=None, end_date=None, seller_id: int = None):
-    query = (
-        db.query(Sale)
-        .options(
-            joinedload(Sale.seller),
-            joinedload(Sale.details).joinedload(DetailSale.product)
-        )
-    )
-
-    if start_date:
-        query = query.filter(func.date(Sale.sale_date) >= start_date)
-    if end_date:
-        query = query.filter(func.date(Sale.sale_date) <= end_date)
-    if seller_id:
-        query = query.filter(Sale.id_seller == seller_id)
-
-    total = query.count()
-    sales = query.order_by(Sale.sale_date.desc()).offset((page - 1) * limit).limit(limit).all()
-
-    responses = []
-    for sale in sales:
-        detail_responses = [
-            SaleDetailResponse(
-                id_product=detail.id_product,
-                product_name=detail.product.name,
-                quantity=detail.quantity,
-                unit_price=detail.unit_price,
-                subtotal=detail.subtotal
-            )
-            for detail in sale.details
-        ]
-        responses.append(SaleResponse(
-            id_sale=sale.id_sale,
-            folio=sale.folio,
-            sale_date=sale.sale_date,
-            total=sale.total,
-            payment_method=sale.payment_method,
-            seller_name=f"{sale.seller.first_name} {sale.seller.last_name}",
-            details=detail_responses
-        ))
-
-    return {"data": responses, "total": total, "page": page, "limit": limit}'''
-
 
 def get_all_sales(db: Session, page: int = 1, limit: int = 10, start_date=None, end_date=None, seller_id: int = None, search: str = None):
     query = (
