@@ -15,6 +15,14 @@ def get_categories(db: Session, page: int = 1, limit: int = 10, search: str = No
     return {"data": categories, "total": total, "page": page, "limit": limit}
 
 
+def get_all_active_categories(db: Session):
+    return (
+        db.query(Category)
+        .filter(Category.status == CategoryStatus.ACTIVE)
+        .all()
+    )
+
+
 def get_category_by_id(db: Session, category_id: int):
     return db.query(Category).filter(
         Category.id_category == category_id,

@@ -10,6 +10,11 @@ from app.services.auth.auth_service import RoleChecker
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
+@router.get("/all-active", response_model=List[CategoryResponse], dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
+def get_all_active_categories(db: Session = Depends(get_db)):
+    return category_service.get_all_active_categories(db)
+
+
 @router.get("/", dependencies=[Depends(RoleChecker(["Administrador", "Vendedor"]))])
 def list_categories(
     page: int = Query(1, ge=1),
