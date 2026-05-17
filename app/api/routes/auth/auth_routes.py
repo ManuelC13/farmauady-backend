@@ -26,8 +26,8 @@ def login(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False, # cuando se despliegue se cambia a true porque depende de HTTPS
-        samesite="lax",
+        secure=True, # cuando se despliegue se cambia a true porque depende de HTTPS
+        samesite="none",
         max_age=3600
     )
 
@@ -35,8 +35,8 @@ def login(
         key="fresh_token",
         value=fresh_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         max_age=604800
     )
 
