@@ -65,7 +65,7 @@ origenes_permitidos = [
     "http://localhost:5173",     
     "http://localhost:8000",     
     "http://127.0.0.1:8000",
-    "https://farmauady-frontend.a22216874.workers.dev",     
+    "https://farmauady.a22216874.workers.dev",     
 ]
 
 app.add_middleware(
